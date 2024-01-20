@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend: # Definição do serviço Backend
+    build: # Configuração para construir a imagem do backend
+      context: . # Diretório onde está localizado o Dockerfile do backend (pasta raiz)
+      dockerfile: dockerfile-backend # Nome do Dockerfile para o backend
+    ports:
+      - "8000:8000" # Mapeamento da porta 8080 do host para a porta 80 do contêiner
+  
+    volumes:
+      - ./backend:/var/www/html
+      - ./backend/storage:/var/www/storage 
+
+  frontend: # Definição do serviço Frontend
+    build: # Configuração para construir a imagem do frontend
+      context: . # Diretório onde está localizado o Dockerfile do frontend (pasta raiz)
+      dockerfile: dockerfile-frontend # Nome do Dockerfile para o frontend
+    ports:
+      - "3000:3000" # Mapeamento da porta 8081 do host para a porta 3000 do contêiner
+    # Outras configurações necessárias para o frontend
+    volumes:
+      - ./frontend:/usr/src/app/front
+
+  db: # Definição do serviço de Banco de Dados (PostgreSQL)
+    image: postgres:latest # Imagem utilizada para o serviço (última versão do PostgreSQL)
+    restart: always # Sempre reiniciar o serviço se ele parar inesperadamente
+    environment:
+      POSTGRES_USER: workana # Usuário do PostgreSQL
+      POSTGRES_PASSWORD: Teste@teste # Senha do PostgreSQL
+      POSTGRES_DB: workana-softexpert # Nome do banco de dados
+    ports:
+      - "5432:5432" # Mapeamento da porta 5432 do host para a porta 5432 do contêiner
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Volume para persistência dos dados do PostgreSQL
+
+volumes:
+  postgres_data: # Definição do volume para persistência dos dados do PostgreSQL

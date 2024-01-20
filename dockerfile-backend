@@ -1,0 +1,43 @@
+# Dockerfile para o backend Laravel (imagem Debian)
+FROM php:latest AS backend
+
+
+# Define o diretório de trabalho como /var/www
+WORKDIR /var/www
+
+# Instala dependências necessárias (exemplo: Composer)
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    zip
+
+# Instala extensões do PHP necessárias
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql mbstring exif pcntl bcmath opcache zip
+
+# Copia os arquivos do projeto para o contêiner
+ COPY ./backend /var/www/
+
+# Copia o arquivo .env.example para .env
+RUN cp .env.example .env
+
+
+
+# Instala as dependências do Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer install
+
+# Gera uma nova chave de aplicação Laravel (incluindo a chave no arquivo .env)
+RUN php artisan key:generate
+
+# Exponha a porta
+EXPOSE 8000
+
+# Comando para iniciar o servidor (pode variar de acordo com seu projeto)
+CMD ["php", "artisan", "serve", "--host=0.0.0.0"]
